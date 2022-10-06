@@ -45,8 +45,8 @@ def load_model(weights="",  # model.pt path(s)
 def detect_plate(model,
         device,
         source,  # file/dir/URL/glob, 0 for webcam
-        imgsz=[512,512],  # inference size (height, width)
-        conf_thres=0.1,  # confidence threshold
+        imgsz=[768,768],  # inference size (height, width)
+        conf_thres=0.04,  # confidence threshold
         iou_thres=0.3,  # NMS IOU threshold
         max_det=1000,  # maximum detections per image
         classes=None,  # filter by class: --class 0, or --class 0 2 3
@@ -123,6 +123,11 @@ if __name__ == "__main__":
         img_ori = cv2.imread(folder_img + path)
         box_img = detect_plate(model, device, img_ori)
 
-        print("GPU Memory: %s" % getMemoryUsage())
+        # print("GPU Memory: %s" % getMemoryUsage())
 
-
+        for i in range(len(box_img)):
+            isExist = os.path.exists(folder_output + path[:-4] )
+            if not isExist:
+                os.makedirs(folder_output + path[:-4])
+            cv2.imwrite(folder_output + path[:-4] + '/croped' + str(i) + ".jpg" , box_img[i])
+            
