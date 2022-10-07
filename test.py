@@ -111,7 +111,7 @@ if __name__ == "__main__":
     # tmp_tensor = torch.empty(int(total_memory * 0.499), dtype=torch.int8, device='cuda')
     folder_img = "/home/anlab/Downloads/薬品複数画像/û≥òiòíÉöëµæ£/"
     folder_output = "/home/anlab/Desktop/Songuyen/PIl_detection/box_output/"
-    weight = "/home/anlab/Desktop/Songuyen/PIl_detection/CP/cp_0610.pt"
+    weight = "/home/anlab/Desktop/Songuyen/PIl_detection/CP/cp_0610v2.pt"
     
     model, device = load_model(weights=weight)
     print("GPU Memory_____: %s" % getMemoryUsage())
@@ -124,10 +124,11 @@ if __name__ == "__main__":
         box_img = detect_plate(model, device, img_ori)
 
         # print("GPU Memory: %s" % getMemoryUsage())
-
+        print(len(box_img))
         for i in range(len(box_img)):
+            croped = img_ori[box_img[i][1]:box_img[i][3], box_img[i][0]: box_img[i][2]]
             isExist = os.path.exists(folder_output + path[:-4] )
             if not isExist:
                 os.makedirs(folder_output + path[:-4])
-            cv2.imwrite(folder_output + path[:-4] + '/croped' + str(i) + ".jpg" , box_img[i])
+            cv2.imwrite(folder_output + path[:-4] + '/croped' + str(i) + ".jpg" , croped)
             
