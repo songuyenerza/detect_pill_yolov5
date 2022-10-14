@@ -103,13 +103,18 @@ def detect_plate(model,
 def crop_box(img_ori, box_img,img_output, check_crop):
     img = img_ori
     if len(box_img)!= 0:
+        crop_list = []
         for i in range(len(box_img)):
             croped = img_ori[box_img[i][1]:box_img[i][3], box_img[i][0]: box_img[i][2]]
             croped = cv2.resize(croped,(int(croped.shape[1]*1000/croped.shape[0]), 1000))
+            crop_list.append(croped)
             img = cv2.rectangle(img_ori, (box_img[i][0],box_img[i][1]), (box_img[i][2],box_img[i][3]), (0,0,255), 2)
             if check_crop == True:
                 cv2.imwrite(img_output , croped)
-    return img
+    if check_crop == True:
+        return crop_list
+    else:
+        return img
 
 
 def getMemoryUsage():
@@ -134,5 +139,4 @@ if __name__ == "__main__":
                 tt+=1
                 box_img = detect_plate(model, device, img_ori,iou_thres = 0.0001)
                 img_output = folder_output +  pa + pat +  path[:-4] + 'croped' + str(tt) + ".jpg"
-                img = crop_box(img_ori, box_img, img_output, check_crop = False)
-    print(tt)
+                img_out = crop_box(img_ori, box_img, img_output, check_crop = False)  #check == True --> croped_list, check==False ---> img_rectangle
