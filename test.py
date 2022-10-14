@@ -117,8 +117,6 @@ def getMemoryUsage():
     return "%d %s" % (usage["used"], usage["unit"])
 
 if __name__ == "__main__":
-    # total_memory = torch.cuda.get_device_properties(0).total_memory
-    # tmp_tensor = torch.empty(int(total_memory * 0.499), dtype=torch.int8, device='cuda')
     folder_img = "/media/anlab/0e731fe3-5959-4d40-8958-e9f6296b38cb/home/anlab/songuyen/Download/train_pilll_1310/train/"
     folder_output = "/home/anlab/Desktop/Songuyen/PIl_detection/check/"
     weight = "/home/anlab/Desktop/Songuyen/PIl_detection/CP/cp_0610v2.pt"
