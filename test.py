@@ -16,10 +16,10 @@ from pynvml.smi import nvidia_smi
 nvsmi = nvidia_smi.getInstance()
 
 def convert_box(box, img_width, img_height):
-    x0 = int((box[0] - ((box[2]*1.4) / 2)) * img_width)
-    y0 = int((box[1] - ((box[3]*1.4) / 2)) * img_height)
-    x1 = int((box[0] + ((box[2]*1.4) / 2)) * img_width)
-    y1 = int((box[1] + ((box[3]*1.4) / 2)) * img_height)
+    x0 = int((box[0] - ((box[2]*1.1) / 2)) * img_width)
+    y0 = int((box[1] - ((box[3]*1.1) / 2)) * img_height)
+    x1 = int((box[0] + ((box[2]*1.1) / 2)) * img_width)
+    y1 = int((box[1] + ((box[3]*1.1) / 2)) * img_height)
     return [x0, y0, x1, y1]
 
 @torch.no_grad()
