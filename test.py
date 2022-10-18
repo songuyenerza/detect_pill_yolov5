@@ -16,10 +16,14 @@ from pynvml.smi import nvidia_smi
 nvsmi = nvidia_smi.getInstance()
 
 def convert_box(box, img_width, img_height):
-    x0 = int((box[0] - ((box[2]*1.1) / 2)) * img_width)
-    y0 = int((box[1] - ((box[3]*1.1) / 2)) * img_height)
-    x1 = int((box[0] + ((box[2]*1.1) / 2)) * img_width)
-    y1 = int((box[1] + ((box[3]*1.1) / 2)) * img_height)
+    x0 = int((box[0] - ((box[2]*1.2) / 2)) * img_width)
+    y0 = int((box[1] - ((box[3]*1.2) / 2)) * img_height)
+    x1 = int((box[0] + ((box[2]*1.2) / 2)) * img_width)
+    y1 = int((box[1] + ((box[3]*1.2) / 2)) * img_height)
+    if x0<0:
+        x0 = 0
+    if y0<0:
+        y0 = 0
     return [x0, y0, x1, y1]
 
 @torch.no_grad()
@@ -45,8 +49,8 @@ def load_model(weights="",  # model.pt path(s)
 def detect_plate(model,
         device,
         source,  # file/dir/URL/glob, 0 for webcam
-        imgsz=[640,640],  # inference size (height, width)
-        conf_thres=0.001,  # confidence threshold
+        imgsz=[736,736],  # inference size (height, width)
+        conf_thres=0.35,  # confidence threshold
         iou_thres=0.0001,  # NMS IOU threshold
         max_det=1000,  # maximum detections per image
         classes=None,  # filter by class: --class 0, or --class 0 2 3
@@ -96,9 +100,9 @@ def detect_plate(model,
                 line= [float(value) if i!=0 else int(value) for i,value in enumerate(line)]
                 cls=line[0]
                 box=convert_box(line[1:],im0.shape[1],im0.shape[0])
-                if box[0] > int(im0.shape[1]/5):
-                    if box[2] < int(im0.shape[1]*0.82):
-                        box_image.append(box)
+                # if box[0] > int(im0.shape[1]*0.02):
+                # if int(im0.shape[1]*0.1) < box[2] < int(im0.shape[1]*0.82):
+                box_image.append(box)
     return box_image
 def crop_box(img_ori, box_img,img_output, check_crop):
     img = img_ori
@@ -106,7 +110,11 @@ def crop_box(img_ori, box_img,img_output, check_crop):
         crop_list = []
         for i in range(len(box_img)):
             croped = img_ori[box_img[i][1]:box_img[i][3], box_img[i][0]: box_img[i][2]]
-            croped = cv2.resize(croped,(int(croped.shape[1]*1000/croped.shape[0]), 1000))
+            try:
+                croped = cv2.resize(croped,(int(croped.shape[1]*300/croped.shape[0]), 300))
+            except:
+                print(croped.shape)
+                print(box_img[i])
             crop_list.append(croped)
             img = cv2.rectangle(img_ori, (box_img[i][0],box_img[i][1]), (box_img[i][2],box_img[i][3]), (0,0,255), 2)
             if check_crop == True:
@@ -115,7 +123,6 @@ def crop_box(img_ori, box_img,img_output, check_crop):
         return crop_list
     else:
         return img
-
 
 def getMemoryUsage():
     usage = nvsmi.DeviceQuery("memory.used")["gpu"][0]["fb_memory_usage"]
@@ -134,9 +141,19 @@ if __name__ == "__main__":
             for path in os.listdir(folder_img + pa + "/" + pat):
                 img_ori = cv2.imread(folder_img + pa + "/" + pat + "/" + path)
                 center = img_ori.shape
-                dis = abs(center[0] - center[1])
-                img_ori = img_ori[int(dis/2):int(dis/2 + center[1]), 0: center[1]]
                 tt+=1
-                box_img = detect_plate(model, device, img_ori,iou_thres = 0.0001)
-                img_output = folder_output +  pa + pat +  path[:-4] + 'croped' + str(tt) + ".jpg"
-                img_out = crop_box(img_ori, box_img, img_output, check_crop = False)  #check == True --> croped_list, check==False ---> img_rectangle
+                box_img = detect_plate(model, device, img_ori,imgsz=[640,640],conf_thres=0.35, iou_thres = 0.001)
+                if len(box_img) == 0:
+                    w =  center[1] * 0.7
+                    h =  center[0] * 0.7
+                    x = center[1]/2 - w/2
+                    y = center[0]/2 - h/2
+                    img_ori = img_ori[int(y):int(y+h), int(x):int(x+w)]
+                    box_img = detect_plate(model, device,img_ori, imgsz=[704,704],conf_thres = 0.2 ,iou_thres = 0.001)
+                if len(box_img) != 1:
+                    count+=1
+                    print(len(box_img))
+                    img_output = folder_output +  pa + pat +  path[:-4] + 'croped' + str(tt) + ".jpg"
+                    # img_out = crop_box(img_ori, box_img, img_output, check_crop = False)  #check == True --> croped_list, check==False ---> img_rectangle
+                    cv2.imwrite("/home/anlab/Desktop/Songuyen/PIl_detection/1801check/" + str(count) + ".jpg", img_ori)
+    print(count)
