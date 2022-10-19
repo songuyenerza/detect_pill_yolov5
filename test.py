@@ -131,7 +131,7 @@ def getMemoryUsage():
 if __name__ == "__main__":
     folder_img = "/media/anlab/0e731fe3-5959-4d40-8958-e9f6296b38cb/home/anlab/songuyen/Download/train_pilll_1310/train/"
     folder_output = "/home/anlab/Desktop/Songuyen/PIl_detection/check/"
-    weight = "/home/anlab/Desktop/Songuyen/PIl_detection/CP/cp_0610v2.pt"
+    weight = "/home/anlab/Desktop/Songuyen/PIl_detection/CP/cp1810v5.pt"
     model, device = load_model(weights=weight)
     print("GPU Memory_____: %s" % getMemoryUsage())
     count = 0
@@ -142,18 +142,18 @@ if __name__ == "__main__":
                 img_ori = cv2.imread(folder_img + pa + "/" + pat + "/" + path)
                 center = img_ori.shape
                 tt+=1
-                box_img = detect_plate(model, device, img_ori,imgsz=[640,640],conf_thres=0.35, iou_thres = 0.001)
+                box_img = detect_plate(model, device, img_ori,imgsz=[640,640],conf_thres=0.5, iou_thres = 0.001)
                 if len(box_img) == 0:
-                    w =  center[1] * 0.7
-                    h =  center[0] * 0.7
+                    w =  center[1] * 0.8
+                    h =  center[0] * 0.8
                     x = center[1]/2 - w/2
                     y = center[0]/2 - h/2
                     img_ori = img_ori[int(y):int(y+h), int(x):int(x+w)]
-                    box_img = detect_plate(model, device,img_ori, imgsz=[704,704],conf_thres = 0.2 ,iou_thres = 0.001)
+                    box_img = detect_plate(model, device,img_ori, imgsz=[704,704],conf_thres = 0.4 ,iou_thres = 0.001)
                 if len(box_img) != 1:
                     count+=1
                     print(len(box_img))
                     img_output = folder_output +  pa + pat +  path[:-4] + 'croped' + str(tt) + ".jpg"
-                    # img_out = crop_box(img_ori, box_img, img_output, check_crop = False)  #check == True --> croped_list, check==False ---> img_rectangle
-                    cv2.imwrite("/home/anlab/Desktop/Songuyen/PIl_detection/1801check/" + str(count) + ".jpg", img_ori)
+                    img_out = crop_box(img_ori, box_img, img_output, check_crop = False)  #check == True --> croped_list, check==False ---> img_rectangle
+                    # cv2.imwrite("/home/anlab/Desktop/Songuyen/PIl_detection/1801check/" + str(count) + ".jpg", img_out)
     print(count)
