@@ -14,6 +14,7 @@ from models.common import DetectMultiBackend
 import torch
 import torch.backends.cudnn as cudnn
 import timeit
+from PIL import Image
 from pynvml.smi import nvidia_smi
 nvsmi = nvidia_smi.getInstance()
 
@@ -194,7 +195,10 @@ if __name__ == "__main__":
         # for pat in os.listdir(folder_img + pa ):
             # for path in os.listdir(folder_img + pa + "/" + pat):
         img_input = folder_img  + IMAGE_PATH_DB[i]
-        img_ori = cv2.imread(folder_img  + IMAGE_PATH_DB[i])
+        image_path = folder_img  + IMAGE_PATH_DB[i]
+        pil_image = Image.open(image_path).convert('RGB')
+        img_ori = cv2.cvtColor(np.array(pil_image), cv2.COLOR_RGB2BGR)
+        # img_ori = cv2.imread(folder_img  + IMAGE_PATH_DB[i])
         img_output = folder_output +  IMAGE_PATH_DB[i]
         save_txt = output_label + IMAGE_PATH_DB[i].split('/')[-1][:-4]
         center = img_ori.shape
