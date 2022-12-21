@@ -199,7 +199,7 @@ if __name__ == "__main__":
         save_txt = output_label + IMAGE_PATH_DB[i].split('/')[-1][:-4]
         center = img_ori.shape
         tt+=1
-        box_img, list_line_save = detect_plate(model, device, img_ori,imgsz=[640,640],conf_thres=0.5, iou_thres = 0.3)
+        box_img, list_line_save = detect_plate(model, device, img_ori,imgsz=[640,640],conf_thres=0.4, iou_thres = 0.3)
 
         # img_out = crop_box(img_ori, box_img, img_output, check_crop = False)  #check == True --> croped_list, check==False ---> img_rectangle
         # cv2.imwrite( img_output, img_out)
